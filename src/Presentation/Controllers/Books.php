@@ -28,7 +28,8 @@ class Books extends \Presentation\MVC\Controller {
         return $this->view('bookSearch', [
             'user' => $this->signedInUserQuery->execute(),
             'filter' => $this->tryGetParam(self::PARAM_FILTER, $value) ? $value : '',
-            'books' => $this->tryGetParam(self::PARAM_FILTER, $value) ? $this->bookSearchQuery->execute($value) : null
+            'books' => $this->tryGetParam(self::PARAM_FILTER, $value) ? $this->bookSearchQuery->execute($value) : null,
+            'context' => $this->getRequestUri()
         ]);
     }
 }

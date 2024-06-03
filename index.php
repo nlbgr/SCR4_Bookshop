@@ -44,11 +44,21 @@ $sp->register(\Application\Services\AuthenticationService::class);
 $sp->register(\Infrastructure\Session::class, isSingleton: true);
 $sp->register(\Application\Interfaces\Session::class, \Infrastructure\Session::class);
 
+// repository
+/*
 $sp->register(\Infrastructure\FakeRepository::class, isSingleton: true);
 $sp->register(\Application\Interfaces\CategoryRepository::class, \Infrastructure\FakeRepository::class);
 $sp->register(\Application\Interfaces\BookRepository::class, \Infrastructure\FakeRepository::class);
 $sp->register(\Application\Interfaces\OrderRepository::class, \Infrastructure\FakeRepository::class);
 $sp->register(\Application\Interfaces\UserRepository::class, \Infrastructure\FakeRepository::class);
+*/
+$sp->register(\Infrastructure\Repository::class, function() {
+    return new \Infrastructure\Repository("localhost", "root", "", "bookshop");
+}, isSingleton: true);
+$sp->register(\Application\Interfaces\CategoryRepository::class, \Infrastructure\Repository::class);
+$sp->register(\Application\Interfaces\BookRepository::class, \Infrastructure\Repository::class);
+$sp->register(\Application\Interfaces\OrderRepository::class, \Infrastructure\Repository::class);
+$sp->register(\Application\Interfaces\UserRepository::class, \Infrastructure\Repository::class);
 
 $sp->resolve(\Presentation\MVC\MVC::class)->handleRequest($sp); 
 
