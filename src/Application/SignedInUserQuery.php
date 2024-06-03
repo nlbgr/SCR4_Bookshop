@@ -14,7 +14,7 @@ class SignedInUserQuery {
             return null;
         }
 
-        $user = $this->userRepository->getUesr($id);
+        $user = $this->userRepository->getUser($id);
         if ($user === null) {
             return null;
         }

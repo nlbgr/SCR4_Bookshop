@@ -33,6 +33,7 @@ $sp->register(\Application\AddBookToCartCommand::class);
 $sp->register(\Application\RemoveBookFromCartCommand::class);
 $sp->register(\Application\SignInCommand::class);
 $sp->register(\Application\SignedInUserQuery::class);
+$sp->register(\Application\SignOutCommand::class);
 
 $sp->register(\Application\Services\CartService::class);
 $sp->register(\Application\Services\AuthenticationService::class);

@@ -6,24 +6,32 @@ class Order extends \Presentation\MVC\Controller {
     const PARAM_ORDER_ID = 'oid';
     const PARAM_CARD_NUMBER = 'cn';
     const PARAM_NAME_ON_CARD = 'noc';
+    const PARAM_USER_NAME = 'un';
 
     public function __construct (
         private \Application\CartSizeQuery $cartSizeQuery,
-        private \Application\CheckoutCommand $checkoutCommand
+        private \Application\CheckoutCommand $checkoutCommand,
+        private \Application\SignedInUserQuery $signedInUserQuery
     ) {
 
     }
 
     public function GET_Create() : \Presentation\MVC\ActionResult {
+        $user = $this->signedInUserQuery->execute();
+        if ($user === null) {
+            return $this->redirect('User', 'Login');
+        }
+
         $cartSize = $this->cartSizeQuery->execute();
 
         if ($cartSize !== 0) {
             return $this->view('orderForm', [
+                'user' => $this->signedInUserQuery->execute(),
                 'cartSize' => $cartSize
             ]);
         }
 
-        return $this->view('orderFormEmptyCart');
+        return $this->view('orderFormEmptyCart', ['user' => $this->signedInUserQuery->execute(),]);
     }
 
     public function POST_Create() : \Presentation\MVC\ActionResult {
@@ -37,6 +45,10 @@ class Order extends \Presentation\MVC\Controller {
         echo $result;
 
         if ($result !== 0) {
+            if ($result & \Application\CheckoutCommand::Error_NotAuthenticated) {
+                return $this->redirect('Order', 'Create');
+            }
+
             if ($result & \Application\CheckoutCommand::Error_CartEmpty) {
                 return $this->redirect('Order', 'Create');
             }
@@ -53,6 +65,7 @@ class Order extends \Presentation\MVC\Controller {
             }
 
             return $this->view('orderForm', [
+                'user' => $this->signedInUserQuery->execute(),
                 "cartSize" => $this->cartSizeQuery->execute(),
                 "nameOnCard" => $ccName,
                 "cardNumber" => $ccNumber,
@@ -65,6 +78,7 @@ class Order extends \Presentation\MVC\Controller {
 
     public function GET_ShowSummary() : \Presentation\MVC\ActionResult {
         return $this->view('orderSummary', [
+            'user' => $this->signedInUserQuery->execute(),
             'orderId' => $this->getParam(self::PARAM_ORDER_ID)
         ]);
     }

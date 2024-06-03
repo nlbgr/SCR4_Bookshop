@@ -79,7 +79,7 @@ class FakeRepository
         return rand();
     }
 
-    public function getUesr(int $id): ?\Application\Entities\User {
+    public function getUser(int $id): ?\Application\Entities\User {
         foreach ($this->mockUsers as $u) {
             if ($u[0] === $id) {
                 return new \Application\Entities\User($u[0], $u[1], $u[2]);

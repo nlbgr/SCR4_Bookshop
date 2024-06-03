@@ -11,16 +11,20 @@ class CheckoutCommand {
 
     public function __construct(
         private Interfaces\OrderRepository $orderRepository,
-        private Services\CartService $cartService
-    ) {
-
-    }
+        private Services\CartService $cartService,
+        private Services\AuthenticationService $authenticationService
+    ) { }
 
     public function execute(string $ccName, string $ccNumber, ?int &$orderId): int {
         $ccName = trim($ccName);
         $ccNumber = str_replace(' ', '', $ccNumber);
 
         $errors = 0;
+
+        $userID = $this->authenticationService->getUserId();
+        if ($userID === null) {
+            $errors |= self::Error_NotAuthenticated;
+        }
 
         // check for items in cart
         if ($this->cartService->getSize() === 0) {
