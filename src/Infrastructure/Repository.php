@@ -111,7 +111,30 @@ class Repository
     }
 
     public function createOrder(array $books, string $ccName, string $ccNumber): ?int {
-        // TODO: Implement createOrder() method.
+        $con = $this->getConnection();
+        $con->autocommit(false);
+        $stat = $this->executeStatement(
+            $con,
+            "INSERT INTO orders (userId, creditCardHolder, creditCardNumber) VALUES (?, ?, ?)",
+            function($s) use ($userId, $creditCardName, $creditCardNumber) {
+                $s->bind_param('iss', $userId, $creditCardName, $creditCardNumber);
+            }
+        );
+        $orderId = $stat->insert_id;
+        $stat->close();
+
+        foreach ($books as $bookId => $count) {
+            for ($i = 0; $i < $count; $i++) {
+                $this->executeStatement($con,
+                "INSERT INTO orderedBooks (orderId, bookId) VALUES (?, ?)",
+                function($s) use ($orderId, $bookId) {
+                    $s->bind_param("ii", $orderId, $bookId);
+                })->close();
+            }
+        }
+        $con->commit();
+        $con->close();
+        return $orderId;
     }
 
     public function getUser(int $id): ?\Application\Entities\User {
