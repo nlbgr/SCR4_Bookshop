@@ -139,11 +139,37 @@ class Repository
 
     public function getUser(int $id): ?\Application\Entities\User {
         $user = null;
-        // TODO: Implement getUser() method.
+        $con = $this->getConnection();
+        $stat = $this->executeStatement($con,
+            'SELECT id, userName, passwordHash FROM users WHERE id = ?',
+            function($s) use ($id) {
+                $s->bind_param('i', $id);
+            }
+        );
+        $stat->bind_result($id, $userName, $passwordHash);
+        if ($stat->fetch()) {
+            $user = new \Application\Entities\User($id, $userName, $passwordHash);
+        }
+        $stat->close();
+        $con->close();
         return $user;
     }
 
     public function getUserForUserName(string $userName): ?\Application\Entities\User {
-        // TODO: Implement getUserForUserName() method.
+        $user = null;
+        $con = $this->getConnection();
+        $stat = $this->executeStatement($con,
+            'SELECT id, userName, passwordHash FROM users WHERE userName = ?',
+            function($s) use ($userName) {
+                $s->bind_param('s', $userName);
+            }
+        );
+        $stat->bind_result($id, $userName, $passwordHash);
+        if ($stat->fetch()) {
+            $user = new \Application\Entities\User($id, $userName, $passwordHash);
+        }
+        $stat->close();
+        $con->close();
+        return $user;
     }
 }
